@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>snake</title>
+    <script>
+    var map=null;
+    var food=null;
+    var snake=null;
+
+    var timer=null;
+    var t=500;
+    function Map(){
+        this.width=600;//单位像素 px
+        this.height=400;
+        this.backgroundColor='#dddddd';
+        this.position='relative';
+        this._map=null;
+        this.show=function(){
+            this._map=document.createElement('div');
+            this._map.style.width=this.width+'px';
+            this._map.style.height=this.height+'px';
+            this._map.style.backgroundColor=this.backgroundColor;
+            this._map.style.position=this.position;
+            document.querySelector('body').appendChild(this._map);
+        }
+    }
+    function Food(){
+        //属性
+        this.width=20;//单位像素 px
+        this.height=20;
+        this.backgroundColor='green';
+        //位置
+        this.position='absolute';
+        this.x=0;
+        this.y=0;
+        this._food=null;
+        this.show=function(){
+            if (this._food==null) {
+            this._food=document.createElement('div');
+        }
+            this._food.style.width=this.width+'px';
+            this._food.style.height=this.height+'px';
+            this._food.style.backgroundColor=this.backgroundColor;
+            this._food.style.position=this.position;
+            this.x=Math.floor(Math.random()*30);
+            this.y=Math.floor(Math.random()*20);
+            this._food.style.left=this.x*this.width+'px';
+            this._food.style.top=this.y*this.height+'px';
+            //让食物显示在地图上
+            map._map.appendChild(this._food);
+        }
+    }
+    function Snake(){
+        this.body=[[3,2,'red',null],[2,2,'blue',null],[1,2,'blue',null]];
+        this.width=20;//单位 px
+        this.height=20;
+        this.position='absolute';
+        this.direct='right';
+        
+        //定义显示方法
+        this.show=function(){
+            for(var i=0; i<this.body.length; i++){
+            if(this.body[i][3]===null) {
+            this.body[i][3]=document.createElement('div');
+            }
+            this.body[i][3].style.backgroundColor=this.body[i][2];
+            this.body[i][3].style.width=this.width+'px';
+            this.body[i][3].style.height=this.height+'px';
+            this.body[i][3].style.position=this.position;
+            this.body[i][3].style.left=this.body[i][0]*this.width+'px';
+            this.body[i][3].style.top=this.body[i][1]*this.height+'px';
+            //让蛇显示在地图上
+            map._map.appendChild(this.body[i][3]);
+           }
+        }
+        //定义移动方法
+        this.move=function(){
+            if (this.body[0][0]==food.x&&this.body[0][1]==food.y){
+                this.body.push([0,0,'blue',null]);//添加
+                this.show();//重现
+                food.show();
+                t-=50;
+                m(t);
+            }
+            //除了蛇头,变坐标，从蛇尾开始
+            for(var i=this.body.length-1;i>0;i--){
+                this.body[i][0]=this.body[i-1][0];
+                this.body[i][1]=this.body[i-1][1];
+            }
+            //配置蛇头
+            if (this.direct=='right'){
+                this.body[0][0]+=1;
+            }else if (this.direct=='left'){
+                this.body[0][0]-=1;
+            }else if (this.direct=='up'){
+                this.body[0][1]-=1;
+            }else if (this.direct=='down'){
+                this.body[0][1]+=1;
+            }
+            //两个边界判断
+            if (this.body[0][1]<0||this.body[0][1]>19||this.body[0][0]<0||this.body[0][0]>29){
+                alert('Game Over! 刷新重新开始');
+                clearInterval(timer);
+                return false;
+            }
+            for(var i=1;i<this.body.lenght;i++){
+                if (this.body[0][0]==this.body[i][0]&&this.body[0][1]==this.body[i][1]){
+                    alert('太不小心了，怎么能吃自己呢~');
+                    clearInterval(timer);
+                    return false;
+                }
+            }
+            this.show();
+        }
+        //设置direct的值(转义键盘的数值)
+        this.setDirect=function(keyCode){
+            switch(keyCode){
+                case 37:
+                this.direct='left';
+                break;
+                case 38:
+                this.direct='up';
+                break;
+                case 39:
+                this.direct='right';
+                break;
+                case 40:
+                this.direct='down';
+                break;
+            }
+        }
+    }
+    function m(t){
+        clearInterval(timer);
+        timer=setInterval('snake.move()',t);
+    }
+    window.onload=function(){
+        map=new Map();
+        map.show();
+        food=new Food();
+        food.show();
+        snake=new Snake();
+        snake.show();
+        m(t);
+        document.body.onkeydown=function(event){
+            var e=window.event||event;
+            var keyCode=e.keyCode;
+            snake.setDirect(keyCode);
+        }
+    }
+</script>
+</head>
+<body>
+
+</body>
+</html> 
